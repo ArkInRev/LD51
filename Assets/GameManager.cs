@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     public Transform[] exhaustLocations;
     public Transform[] sideLocations;
     public Transform[] backLocations;
+    public Transform[] enemySpawnLocations;
 
 
 
@@ -155,6 +156,15 @@ public class GameManager : MonoBehaviour
         else
         {
             int piecesFound = 0;
+            foreach(bool itemFixed in itemsReturned)
+            {
+                if (itemFixed)
+                {
+                    piecesFound += 1;
+                }
+            }
+
+
             GameOverButtonText.SetText("Try Again");
             GameOverMessage.SetText("You Have Lost");
             GameOverDetails.SetText("You have been caught by the alien life form! You fixed " + piecesFound.ToString() + " out of 3 parts of the generator.");

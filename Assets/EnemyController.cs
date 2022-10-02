@@ -62,6 +62,7 @@ public class EnemyController : MonoBehaviour
     public CapsuleCollider cc;
 
 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -74,6 +75,8 @@ public class EnemyController : MonoBehaviour
         enemyAIState = AIState.Stun;
         GameManager.Instance.onPowerChange += onPowerChanged;
         GameManager.Instance.onTick += onTick;
+
+        getRandomStartingPosition();
         AIStateChanged();
     }
 
@@ -352,6 +355,15 @@ public class EnemyController : MonoBehaviour
             //Debug.Log("GAME OVER: Just ate the player. ");
             GameManager.Instance.gameOver(false);
         }
+    }
+
+    private void getRandomStartingPosition()
+    {
+        Transform[] thisLocationList;
+        thisLocationList = GameManager.Instance.enemySpawnLocations;
+        Transform thisDestination = thisLocationList[UnityEngine.Random.Range(0, thisLocationList.Length)];
+        agent.Warp(thisDestination.position);
+        //Debug.Log("Spawn position: " + thisDestination.position.ToString() + " Enemy Pos: " + this.transform.position.ToString());
     }
 
     private void OnDisable()
