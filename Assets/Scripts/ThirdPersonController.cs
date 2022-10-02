@@ -29,7 +29,7 @@ public class ThirdPersonController : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         pc = GetComponent<PlayerController>();
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     private void Start()
@@ -41,7 +41,7 @@ public class ThirdPersonController : MonoBehaviour
         look = (Input.GetAxisRaw("Mouse X") * rotSpeed * sensitivity);
         vertLook = (Input.GetAxisRaw("Mouse Y") * rotSpeed * sensitivity);
 
-        if (Input.GetKeyDown(KeyCode.LeftControl)) ToggleCursorLock();
+        if (Input.GetKeyDown(KeyCode.LeftShift)) ToggleCursorLock();
         if (Input.GetKeyDown(KeyCode.Alpha1)) sensitivity = 0.05f;
         if (Input.GetKeyDown(KeyCode.Alpha2)) sensitivity = 0.1f;
         if (Input.GetKeyDown(KeyCode.Alpha3)) sensitivity = 0.15f;

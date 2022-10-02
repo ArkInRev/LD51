@@ -200,7 +200,7 @@ public class EnemyController : MonoBehaviour
             {
                 if (vision.collider.tag == "Player")
                 {
-                    Debug.Log("Vision hit: " + vision.collider.name);
+                    //Debug.Log("Vision hit: " + vision.collider.name);
                     lastSeenLocation = vision.collider.transform.position;
                     foundPlayer = true;
                     break;
@@ -349,7 +349,8 @@ public class EnemyController : MonoBehaviour
     {
         if(other.transform.tag == "Player")
         {
-            Debug.Log("GAME OVER: Just ate the player. ");
+            //Debug.Log("GAME OVER: Just ate the player. ");
+            GameManager.Instance.gameOver(false);
         }
     }
 

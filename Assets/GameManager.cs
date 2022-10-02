@@ -23,7 +23,26 @@ public class GameManager : MonoBehaviour
     // POWER State
     private bool _powerState = true;
 
+    // Wandering
     public Transform[] wanderingSpots;
+
+    // Items Returned
+    public bool[] itemsReturned;
+    public Transform[] exhaustLocations;
+    public Transform[] sideLocations;
+    public Transform[] backLocations;
+
+
+
+    // Game over screens
+    public CanvasGroup TitleScreen;
+    public CanvasGroup GameOverScreen;
+    public TMP_Text GameOverMessage;
+    public TMP_Text GameOverDetails;
+    public TMP_Text GameOverButtonText;
+    
+
+
 
     public void Awake()
     {
@@ -39,8 +58,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        powerChange();
 
+        Time.timeScale = 0f;
+        powerChange();
         //GameStart();  // Reset game settings to begginning values
     }
 
@@ -111,5 +131,41 @@ public class GameManager : MonoBehaviour
             onPowerChange(_powerState);
         }
 
+    }
+
+    public void GameStart()
+    {
+        itemsReturned = new bool[] { false, false, false };
+        _tickElapsed = 0;
+        Time.timeScale = 1;
+        TitleScreen.alpha = 0;
+        TitleScreen.interactable = false;
+        TitleScreen.blocksRaycasts = false;
+    }
+    public void gameOver(bool win)
+    {
+        Time.timeScale = 0;
+        if (win)
+        {
+            GameOverButtonText.SetText("Play Again");
+            GameOverMessage.SetText("You Win!");
+            GameOverDetails.SetText("You fixed the generator and the security patrol has captured the alien life form!");
+
+        }
+        else
+        {
+            int piecesFound = 0;
+            GameOverButtonText.SetText("Try Again");
+            GameOverMessage.SetText("You Have Lost");
+            GameOverDetails.SetText("You have been caught by the alien life form! You fixed " + piecesFound.ToString() + " out of 3 parts of the generator.");
+        }
+        GameOverScreen.alpha = 1;
+        GameOverScreen.interactable = true;
+        GameOverScreen.blocksRaycasts = true;
+    }
+
+    public void ReloadLevel()
+    {
+        Scene scene = SceneManager.GetActiveScene(); SceneManager.LoadScene(scene.name);
     }
 }
