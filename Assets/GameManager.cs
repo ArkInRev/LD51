@@ -18,10 +18,12 @@ public class GameManager : MonoBehaviour
 
     // GAME Tick
     private float _tickElapsed = 0f;
-    private float _ticksPerSecond = 1f;
+    private float _ticksPerSecond = 2f;
 
     // POWER State
     private bool _powerState = true;
+
+    public Transform[] wanderingSpots;
 
     public void Awake()
     {
@@ -79,6 +81,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public Transform getRandomWanderingSpot()
+    {
+        return wanderingSpots[UnityEngine.Random.Range(0, wanderingSpots.Length)];
+    }
+
+
+
+
     //Every time the power toggles
     public event Action onTick;
     public void Tick()
@@ -95,7 +105,7 @@ public class GameManager : MonoBehaviour
     public event Action<bool> onPowerChange;
     public void powerChange()
     {
-        Debug.Log("Power: " + _powerState.ToString());
+ //       Debug.Log("Power: " + _powerState.ToString());
         if (onPowerChange != null)
         {
             onPowerChange(_powerState);

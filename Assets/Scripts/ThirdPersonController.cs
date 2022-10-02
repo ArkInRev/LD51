@@ -5,6 +5,7 @@ using UnityEngine;
 public class ThirdPersonController : MonoBehaviour
 {
     private CharacterController characterController;
+    public PlayerController pc;
     [SerializeField]
     private float moveSpeed = 350;
     [SerializeField]
@@ -27,6 +28,7 @@ public class ThirdPersonController : MonoBehaviour
     void Awake()
     {
         characterController = GetComponent<CharacterController>();
+        pc = GetComponent<PlayerController>();
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -68,12 +70,20 @@ public class ThirdPersonController : MonoBehaviour
         forward = Input.GetAxis("Vertical");
         if (forward != 0)
         {
-            characterController.SimpleMove(moveSpeed * transform.forward * Time.fixedDeltaTime * forward);
+            characterController.SimpleMove(moveSpeed * transform.forward * Time.fixedDeltaTime * forward * pc.speedModifier);
+            
         }
         horizontal = Input.GetAxis("Horizontal");
         if (horizontal != 0)
         {
-            characterController.SimpleMove(moveSpeed * transform.right * Time.fixedDeltaTime * horizontal);
+            characterController.SimpleMove(moveSpeed * transform.right * Time.fixedDeltaTime * horizontal * pc.speedModifier);
+        }
+        if ((forward != 0) || (horizontal != 0))
+        {
+            pc.isWalking = true;
+        } else
+        {
+            pc.isWalking = false;
         }
 
     }

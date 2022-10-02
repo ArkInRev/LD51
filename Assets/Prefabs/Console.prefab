@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6440563110571894758}
   - component: {fileID: 8361640695006453152}
+  - component: {fileID: 4417868866746417896}
   m_Layer: 0
   m_Name: Console
   m_TagString: Untagged
@@ -47,6 +48,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.1160872, y: 0.95098144, z: 0.7644406}
   m_Center: {x: -0.03981316, y: 1.1137406, z: 0.23555931}
+--- !u!208 &4417868866746417896
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8030830641629651422}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 1.01, y: 0.955, z: 0.41}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.76, z: 0.15}
+  m_TimeToStationary: 0.5
 --- !u!1 &9073342879046939517
 GameObject:
   m_ObjectHideFlags: 0
