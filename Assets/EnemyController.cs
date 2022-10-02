@@ -8,6 +8,7 @@ public class EnemyController : MonoBehaviour
     private GameManager gm;
 
     private NavMeshAgent agent;
+    public bool isOnNavMesh;
     enum AIState { Wander, Wandering, Stun, Alert, Searching, Spotting, Chasing, Deciding };
     // Wander - Decide on target
     // Wandering - Heading to a Target
@@ -40,7 +41,7 @@ public class EnemyController : MonoBehaviour
 
     public AudioClip alienStunScreamClip;
     public AudioClip alienIdleClip;
-
+    public AudioClip alienChaseClip;
 
     public float pitchMin = 0.8f;
     public float pitchMax = 1.0f;
@@ -51,6 +52,14 @@ public class EnemyController : MonoBehaviour
 
     private HearingController hearing;
 
+    // Vision Control
+    private RaycastHit vision; // detecting the player tag on collision
+    public float rayLength = 60f;
+    public Transform eyeLocation;
+    public Vector3 lastSeenLocation = Vector3.zero;
+
+    // Eat the Player
+    public CapsuleCollider cc;
 
 
     // Start is called before the first frame update
@@ -61,6 +70,7 @@ public class EnemyController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         alienAnimator = GetComponentInChildren<Animator>();
         hearing = GetComponentInChildren<HearingController>();
+        cc = GetComponent<CapsuleCollider>();
         enemyAIState = AIState.Stun;
         GameManager.Instance.onPowerChange += onPowerChanged;
         GameManager.Instance.onTick += onTick;
@@ -69,6 +79,7 @@ public class EnemyController : MonoBehaviour
 
     void FixedUpdate()
     {
+        isOnNavMesh = agent.isOnNavMesh;
 
         bool stateChanged = false;
         switch (enemyAIState)
@@ -87,6 +98,16 @@ public class EnemyController : MonoBehaviour
                 } else
                 {
                     canHearPlayer = false;
+                }
+                break;
+            case AIState.Chasing:
+                lookForPlayer();
+                if (agent.remainingDistance <= agent.stoppingDistance)
+                {
+                    canSeePlayer = false;
+                    canHearPlayer = false;
+                    agent.isStopped = true;
+                    agent.ResetPath();
                 }
                 break;
 
@@ -167,7 +188,28 @@ public class EnemyController : MonoBehaviour
 
     private bool lookForPlayer()
     {
-        return false;
+        bool foundPlayer = false;
+        Vector3 mlOffset = new Vector3(0.1f, 0f, 0f);
+        int rays = 11;
+        Vector3 currentEyeRay = eyeLocation.position - (mlOffset * 5);
+        for(int i = 0; i < rays; i++)
+        {
+            Debug.DrawRay(currentEyeRay, eyeLocation.transform.forward * rayLength, Color.red, .5f);
+
+            if (Physics.Raycast(currentEyeRay, eyeLocation.transform.forward, out vision, rayLength))
+            {
+                if (vision.collider.tag == "Player")
+                {
+                    Debug.Log("Vision hit: " + vision.collider.name);
+                    lastSeenLocation = vision.collider.transform.position;
+                    foundPlayer = true;
+                    break;
+                }
+            }
+
+            currentEyeRay += mlOffset;
+        }
+        return foundPlayer;
     }
 
     private void playAlienFootstep()
@@ -202,6 +244,17 @@ public class EnemyController : MonoBehaviour
         audioSource.PlayOneShot(audioSource.clip);
     }
 
+    private void playAlienChaseScream()
+    {
+        //always override the existing alien sound 
+        audioSource.clip = alienChaseClip;
+        audioSource.pitch = Random.Range(pitchMin, pitchMax);
+        audioSource.volume = 0.75f;
+        audioSource.PlayOneShot(audioSource.clip);
+    }
+
+
+
     private void AIStateChanged()
     {
         ticksSinceLastAIChange = 0;
@@ -228,6 +281,7 @@ public class EnemyController : MonoBehaviour
         if((enemyAIState == AIState.Alert))
         {
             // Play alerted sound?
+            playAlienIdleScream();
             if((hearing.lastLoudestSound != Vector3.zero)||(hearing.lastLoudestSound != null))
             {
                 agent.destination = hearing.lastLoudestSound;
@@ -235,6 +289,24 @@ public class EnemyController : MonoBehaviour
             agent.speed = alienSearchSpeed;
             enemyAIState = AIState.Searching;
         }
+
+        if ((enemyAIState == AIState.Spotting))
+        {
+            // Play chase sound
+            playAlienChaseScream();
+            if ((lastSeenLocation != Vector3.zero) || (lastSeenLocation != null))
+            {
+                agent.destination = lastSeenLocation;
+            }
+            agent.speed = alienChaseSpeed;
+            enemyAIState = AIState.Chasing;
+        }
+
+        if ((enemyAIState == AIState.Chasing))
+        {
+
+        }
+
 
     }
 
@@ -248,11 +320,17 @@ public class EnemyController : MonoBehaviour
             hearing.heardSounds.Clear();
             playAlienStunScream();
             canHearPlayer = false;
-        } else
+            canSeePlayer = false;
+            cc.enabled = false;
+        }
+        else
         {
             enemyAIState = AIState.Deciding;
             alienAnimator.SetBool("isStunned", false);
             hearing.sc.enabled = true;
+            canHearPlayer = false;
+            canSeePlayer = false;
+            cc.enabled = true;
             // Lets do this on aggro
             //playAlienIdleScream();
         }
@@ -263,8 +341,17 @@ public class EnemyController : MonoBehaviour
     {
         ticksSinceLastAIChange += 1;
         ticksSinceLastFootstep += 1;
+        //canSeePlayer = false;
+//        canHearPlayer = false;
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.transform.tag == "Player")
+        {
+            Debug.Log("GAME OVER: Just ate the player. ");
+        }
+    }
 
     private void OnDisable()
     {
